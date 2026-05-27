@@ -16,6 +16,5 @@ def add_landmark_measurement(graph, initial_estimate, result):
 
     world_angle = math.degrees(math.atan2(dy, dx))
 
-    graph.add(gtsam.BearingRangeFactor2D(X(4), L(2), gtsam.Rot2.fromDegrees(world_angle - 90),  ...
-                                         math.sqrt((dx)**2 + (dy)**2), MEASUREMENT_NOISE))
+    graph.add(gtsam.BearingRangeFactor2D(X(4), L(2), gtsam.Rot2.fromDegrees(world_angle-90), math.sqrt((dx)**2 + (dy)**2), MEASUREMENT_NOISE))
     return graph
