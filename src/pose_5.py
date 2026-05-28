@@ -51,12 +51,18 @@ def minimize_marginals(graph, initial_estimate, pose_options):
     #TODO: try different pose and landmark options here, and keep the one with the lowest sum of marginals.
     best_pose = "a"      # chosen pose option
     best_landmark = 1    # chosen landmark (1 or 2)
-   
+    pose_5 = pose_options[best_pose] 
+    graph, initial_estimate = add_pose(graph, initial_estimate, pose_5)
+    result = optimize(graph, initial_estimate)
+    graph = add_landmark_measurement(graph, initial_estimate, pose_5, best_landmark)
+
+    
     result = optimize(graph, initial_estimate)
 
     # TODO: Calculate marginal covariances for the relevant variables and visualize the updated factor graph with covariances
     marginals = gtsam.Marginals(graph, result)
-    # Print the covariance matrix for each variable
+
+    # Prints the covariance matrix for each relevant variable
     print("X1 covariance:\n{}\n".format(marginals.marginalCovariance(X(1))))
     print("X2 covariance:\n{}\n".format(marginals.marginalCovariance(X(2))))
     print("X3 covariance:\n{}\n".format(marginals.marginalCovariance(X(3))))
@@ -65,13 +71,15 @@ def minimize_marginals(graph, initial_estimate, pose_options):
     print("L1 covariance:\n{}\n".format(marginals.marginalCovariance(L(1))))
     print("L2 covariance:\n{}\n".format(marginals.marginalCovariance(L(2))))
 
+
     import matplotlib.pyplot as plt
     fig = plt.figure(1)
     axes = fig.add_subplot()
     axes = fig.axes[0]
 
+    import gtsam.utils.plot as gp
     # Plot 2D poses
-    poses = gtsam.utilities.allPose2s(result)
+    poses = gtsam.utilities.allPose2s(result) #: gtsam.Values
     for key in poses.keys():
         pose = poses.atPose2(key)
         covariance = marginals.marginalCovariance(key)
@@ -88,7 +96,7 @@ def minimize_marginals(graph, initial_estimate, pose_options):
     axes.set_aspect("equal", adjustable="datalim")
 
     # The sum of the marginals for each landmark can be computed using marginals.marginalCovariance(L(x)).sum()
-    sum_of_marginals = marginals.marginalCovariance(L(best_landmark)).sum()
+    sum_of_marginals = marginals.marginalCovariance(L(1)).sum() + marginals.marginalCovariance(L(2)).sum()
 
     return best_pose, best_landmark, sum_of_marginals
 
