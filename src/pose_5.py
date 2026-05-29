@@ -120,11 +120,12 @@ def minimize_errors(graph, initial_estimate, pose_options):
     result = optimize(graph, initial_estimate)
 
     # TODO: create a list of errors (each index corresponds to a pose) and add the error of each pose to the list
+    #Starting positions
     p1 = result.atPose2(X(1))
     p2 = result.atPose2(X(2))
     p3 = result.atPose2(X(3))
 
-    # Error = sum of absolute deviations of each coordinate from ground truth
+    # Error = sum of absolute deviations of each coordinate from starting positions
     e1 = abs(p1.x() - 0.0) + abs(p1.y() - 0.0) + abs(p1.theta() - 0.0)
     e2 = abs(p2.x() - 2.0) + abs(p2.y() - 0.0) + abs(p2.theta() - 0.0)
     e3 = abs(p3.x() - 4.0) + abs(p3.y() - 0.0) + abs(p3.theta() - 0.0)
@@ -139,5 +140,5 @@ def minimize_errors(graph, initial_estimate, pose_options):
     print(f"  Error X(2): {list_of_errors[1]:.6e}")
     print(f"  Error X(3): {list_of_errors[2]:.6e}")
     print(f"  Total Error: {sum_of_errors:.6e}")
-    
+
     return best_pose, best_landmark, sum_of_errors 
