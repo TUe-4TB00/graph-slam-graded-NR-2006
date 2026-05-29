@@ -62,7 +62,6 @@ def minimize_marginals(graph, initial_estimate, pose_options):
     result = optimize(graph, initial_estimate)
 
     # TODO: Calculate marginal covariances for the relevant variables and visualize the updated factor graph with covariances
-    
     marginals = gtsam.Marginals(graph, result)
 
     # Prints the covariance matrix for each relevant variable
@@ -106,13 +105,14 @@ def minimize_marginals(graph, initial_estimate, pose_options):
 def minimize_errors(graph, initial_estimate, pose_options):
     #TODO: try different pose and landmark options here, and keep the one with the lowest resulting error.
     best_pose = "b"      # chosen pose option
+    best_landmark = 2    # chosen landmark (1 or 2)
+
     if initial_estimate.exists(X(5)):
         initial_estimate.erase(X(5))
 
     graph = gtsam.NonlinearFactorGraph(graph)
     initial_estimate = gtsam.Values(initial_estimate)
 
-    best_landmark = 2    # chosen landmark (1 or 2)
     pose_5 = pose_options[best_pose]
     graph, initial_estimate = add_pose(graph, initial_estimate, pose_5)
     result = optimize(graph, initial_estimate)
@@ -120,18 +120,24 @@ def minimize_errors(graph, initial_estimate, pose_options):
     result = optimize(graph, initial_estimate)
 
     # TODO: create a list of errors (each index corresponds to a pose) and add the error of each pose to the list
+    p1 = result.atPose2(X(1))
+    p2 = result.atPose2(X(2))
+    p3 = result.atPose2(X(3))
 
-    list_of_errors = [
-    graph.at(0).error(result),
-    graph.at(1).error(result),
-    graph.at(2).error(result),]
-
+    # Error = sum of absolute deviations of each coordinate from ground truth
+    e1 = abs(p1.x() - 0.0) + abs(p1.y() - 0.0) + abs(p1.theta() - 0.0)
+    e2 = abs(p2.x() - 2.0) + abs(p2.y() - 0.0) + abs(p2.theta() - 0.0)
+    e3 = abs(p3.x() - 4.0) + abs(p3.y() - 0.0) + abs(p3.theta() - 0.0)
     
+    list_of_errors = [e1, e2, e3]
 
     # TODO: compute the sum of the errors and return it along with the best pose and landmark
-    sum_of_errors = sum(list_of_errors)
-
-    print("Errors for X(1), X(2) and X(3): {}".format(list_of_errors))
-    print("Sum of errors: {}".format(sum_of_errors))
-
-    return best_pose, best_landmark, sum_of_errors
+    sum_of_errors = e1 + e2 + e3
+    
+    print(f"\nBest for pose accuracy: Pose {best_pose}, L({best_landmark})")
+    print(f"  Error X(1): {list_of_errors[0]:.6e}")
+    print(f"  Error X(2): {list_of_errors[1]:.6e}")
+    print(f"  Error X(3): {list_of_errors[2]:.6e}")
+    print(f"  Total Error: {sum_of_errors:.6e}")
+    
+    return best_pose, best_landmark, sum_of_errors 
